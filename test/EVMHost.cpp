@@ -267,11 +267,13 @@ evmc::result EVMHost::call(evmc_message const& _message) noexcept
 			}
 		};
 
+		bytes encodedNonce = encodeRlpInteger(sender.nonce);
+
 		h160 createAddress(keccak256(
-			bytes(1, 0xd6) +
+			bytes(1, static_cast<uint8_t>(0xc0 + 21 + encodedNonce.size())) +
 			bytes(1, 0x94) +
 			bytes(begin(message.sender.bytes), end(message.sender.bytes)) +
-			encodeRlpInteger(sender.nonce)
+			encodedNonce
 		));
 
 		message.destination = convertToEVMC(createAddress);
