@@ -1783,13 +1783,13 @@ void TypeChecker::endVisit(BinaryOperation const& _operation)
 	_operation.annotation().isConstant = false;
 
 	// Check if the operator is built-in or user-defined.
-	Result<FunctionDefinition const*> userDefinedOperatorResult = leftType->operatorDefinition(
+	Result<FunctionDefinition const*> operatorDefinitionResult = leftType->operatorDefinition(
 		_operation.getOperator(),
 		*currentDefinitionScope(),
 		false // _unaryOperation
 	);
-	if (userDefinedOperatorResult)
-		_operation.annotation().userDefinedFunction = userDefinedOperatorResult;
+	if (operatorDefinitionResult)
+		_operation.annotation().userDefinedFunction = operatorDefinitionResult;
 	FunctionType const* userDefinedFunctionType = _operation.userDefinedFunctionType();
 	_operation.annotation().isPure =
 		*_operation.leftExpression().annotation().isPure &&
@@ -1799,12 +1799,12 @@ void TypeChecker::endVisit(BinaryOperation const& _operation)
 	TypeResult builtinResult = leftType->binaryOperatorResult(_operation.getOperator(), rightType);
 
 	// Either the operator is user-defined or built-in.
-	solAssert(!userDefinedOperatorResult || !builtinResult);
+	solAssert(!operatorDefinitionResult || !builtinResult);
 
 	Type const* commonType = leftType;
 	if (builtinResult)
 		commonType = builtinResult.get();
-	else if (userDefinedOperatorResult)
+	else if (operatorDefinitionResult)
 	{
 		Type const* normalizedParameterType = userDefinedFunctionType->parameterTypes().at(0);
 		Type const* normalizedLeftType = leftType;
@@ -1847,7 +1847,7 @@ void TypeChecker::endVisit(BinaryOperation const& _operation)
 			" and " +
 			rightType->humanReadableName() + "." +
 			(!builtinResult.message().empty() ? " " + builtinResult.message() : "") +
-			(!userDefinedOperatorResult.message().empty() ? " " + userDefinedOperatorResult.message() : "")
+			(!operatorDefinitionResult.message().empty() ? " " + operatorDefinitionResult.message() : "")
 		);
 
 	_operation.annotation().commonType = commonType;
