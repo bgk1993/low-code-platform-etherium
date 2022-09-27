@@ -255,13 +255,13 @@ evmc::result EVMHost::call(evmc_message const& _message) noexcept
 
 		auto encodeRlpInteger = [](int value) -> bytes {
 			if (value == 0) {
-				return bytes(1, 128);
+				return bytes{128};
 			} else if (value <= 127) {
-				return bytes(1, static_cast<uint8_t>(value));
+				return bytes{static_cast<uint8_t>(value)};
 			} else if (value <= 0xff) {
-				return bytes(1, 128 + 1) + bytes(1, static_cast<uint8_t>(value));
+				return bytes{128 + 1, static_cast<uint8_t>(value)};
 			} else if (value <= 0xffff) {
-				return bytes(1, 128 + 55 + 2) + bytes(1, static_cast<uint8_t>(value >> 8)) + bytes(1, static_cast<uint8_t>(value));
+				return bytes{128 + 55 + 2, static_cast<uint8_t>(value >> 8), static_cast<uint8_t>(value)};
 			} else {
 				assertThrow(false, Exception, "Can only encode RLP numbers <= 0xffff");
 			}
@@ -270,8 +270,8 @@ evmc::result EVMHost::call(evmc_message const& _message) noexcept
 		bytes encodedNonce = encodeRlpInteger(sender.nonce);
 
 		h160 createAddress(keccak256(
-			bytes(1, static_cast<uint8_t>(0xc0 + 21 + encodedNonce.size())) +
-			bytes(1, 0x94) +
+			bytes{static_cast<uint8_t>(0xc0 + 21 + encodedNonce.size())} +
+			bytes{0x94} +
 			bytes(begin(message.sender.bytes), end(message.sender.bytes)) +
 			encodedNonce
 		));
@@ -284,7 +284,7 @@ evmc::result EVMHost::call(evmc_message const& _message) noexcept
 	else if (message.kind == EVMC_CREATE2)
 	{
 		h160 createAddress(keccak256(
-			bytes(1, 0xff) +
+			bytes{0xff} +
 			bytes(begin(message.sender.bytes), end(message.sender.bytes)) +
 			bytes(begin(message.create2_salt.bytes), end(message.create2_salt.bytes)) +
 			keccak256(bytes(message.input_data, message.input_data + message.input_size)).asBytes()
