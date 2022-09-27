@@ -27,6 +27,8 @@ The first part, ``A``, can be one of:
   as operators. Following binary operators are allowed to be used on the list: ``|``,
   ``^``, ``&``, ``+``, ``-``, ``*``, ``/``, ``%``, ``==``, ``!=``, ``<``, ``>``, ``<=``,
   ``>=``, ``<<``, ``>>``, ``**``. Allowed unary operators are: ``~``, ``!``, ``-``.
+  If an operator can be both binary and unary, it is allowed to have each variant specified
+  on the list (``using {sub as -, unsub as -} for T``).
 
 At file level, the second part, ``B``, has to be an explicit type (without data location specifier).
 Inside contracts, you can also use ``using L for *;``, which has the effect that all functions
